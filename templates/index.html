@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI Media Gallery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
+
+    <!-- Header -->
+    <header class="py-10 mb-10 bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg">
+        <h1 class="text-4xl font-extrabold text-center text-white tracking-wide">
+            📸 My Media Gallery
+        </h1>
+        <p class="text-center text-blue-100 mt-2">
+            Upload and explore your photos & videos
+        </p>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-6">
+
+        <!-- Upload Card -->
+        <div class="bg-white/80 backdrop-blur-lg p-6 rounded-2xl shadow-xl mb-12">
+            <form action="/upload/" method="post" enctype="multipart/form-data"
+                  class="flex flex-col sm:flex-row gap-4 items-center">
+
+                <input type="file" name="files" multiple
+                       class="block w-full text-sm text-gray-500
+                              file:mr-4 file:py-3 file:px-6
+                              file:rounded-full file:border-0
+                              file:text-sm file:font-semibold
+                              file:bg-gradient-to-r file:from-blue-500 file:to-purple-500
+                              file:text-white hover:file:opacity-90 cursor-pointer"/>
+
+                <button type="submit"
+                        class="px-8 py-3 rounded-full font-semibold text-white
+                               bg-gradient-to-r from-blue-600 to-purple-600
+                               hover:scale-105 transition-transform shadow-md">
+                    🚀 Upload
+                </button>
+            </form>
+        </div>
+
+        <!-- Gallery Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+
+            {% for file in files %}
+            <div class="group relative bg-white rounded-2xl overflow-hidden shadow-lg
+                        hover:shadow-2xl transition-all duration-300">
+
+                <!-- Media -->
+                {% if file.type == 'image' %}
+                    <img src="{{ file.url }}" alt="{{ file.name }}"
+                         class="w-full h-56 object-cover transform group-hover:scale-110 transition duration-500">
+                {% else %}
+                    <video class="w-full h-56 object-cover">
+                        <source src="{{ file.url }}" type="video/mp4">
+                    </video>
+                {% endif %}
+
+                <!-- Hover Overlay -->
+                <div class="absolute inset-0 bg-black/50 opacity-0
+                            group-hover:opacity-100 transition flex items-center justify-center">
+                    <a href="{{ file.url }}" target="_blank"
+                       class="px-4 py-2 bg-white text-gray-800 rounded-full text-sm font-semibold
+                              hover:bg-gray-200 transition">
+                        🔍 View
+                    </a>
+                </div>
+
+                <!-- File Info -->
+                <div class="p-4">
+                    <p class="text-sm font-medium text-gray-700 truncate"
+                       title="{{ file.name }}">
+                        {{ file.name }}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <!-- Empty State -->
+        {% if not files %}
+        <div class="text-center text-gray-500 mt-20">
+            <p class="text-lg">No media yet 😢</p>
+            <p class="text-sm mt-2">Upload photos or videos to get started.</p>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-20 text-center text-gray-400 text-sm pb-6">
+        Built with ❤️ using FastAPI & Tailwind CSS
+    </footer>
+
+</body>
+</html>
