@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+python-multipart
+jinja2
+pymongo             # For MongoDB
+boto3               # For S3/MinIO interaction
