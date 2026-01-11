@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # --- Tier 1 & 2: The FastAPI App ---
+  web:
+    build: .
+    container_name: gallery_app
+    restart: always  # Auto-restart if it crashes
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - storage
+    networks:
+      - gallery_net
+
+  # --- Tier 3a: Database (MongoDB) ---
+  db:
+    image: mongo:6.0
+    container_name: gallery_mongo
+    restart: always
+    volumes:
+      - mongo_data:/data/db  # Persist data to a named volume
+    networks:
+      - gallery_net
+
+  # --- Tier 3b: Storage (MinIO) ---
+  storage:
+    image: minio/minio
+    container_name: gallery_minio
+    restart: always
+    command: server /data --console-address ":9001"
+    ports:
+      # We only expose API (9000) and Console (9001) for now.
+      # In real production, you might put these behind Nginx too.
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      # We reference the SAME variables as the app, ensuring they match
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data # Persist files to a named volume
+    networks:
+      - gallery_net
+
+# Define persistent storage
+volumes:
+  mongo_data:
+  minio_data:
+
+# Define a private internal network
+networks:
+  gallery_net:
+    driver: bridge
